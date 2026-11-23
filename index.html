@@ -568,6 +568,8 @@
 
   <script>
     const STORE = "puti_universal_sticky_wall_v1";
+    const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1yI2LXh3jrqaEsbV__IoUFcJuOOwoG3DbwBqYo82GWXU/edit?usp=drivesdk";
+    const DEFAULT_FORM_URL = "https://forms.gle/52gecPdK85hRJQdL8";
     const DEFAULT_GAS_PROXY = "https://script.google.com/macros/s/AKfycbyw_vR_RPa8iDcnmJFxd7nRKFaBX-H2m-plX225TZSYbmOxf5Fg87LWBBcTSJnaoIG0/exec";
     let state = load();
     let pollTimer = null;
@@ -578,7 +580,7 @@
         topic: "",
         sortBy: "new", // new | votes
         bigFont: false,
-        sync: { sheetUrl: "", formUrl: "", autoPoll: false, gasProxyUrl: DEFAULT_GAS_PROXY, geminiKey: "" },
+        sync: { sheetUrl: DEFAULT_SHEET_URL, formUrl: DEFAULT_FORM_URL, autoPoll: false, gasProxyUrl: DEFAULT_GAS_PROXY, geminiKey: "" },
         notes: [],       // { id, author, text, votes, starred, colorIdx, ts }
         ignoredIds: [],  // row IDs archived from previous rounds
         history: []      // { round, topic, time, notes, summary }
@@ -591,6 +593,8 @@
         if (!raw) return defaults();
         const p = JSON.parse(raw);
         const mergedSync = { ...defaults().sync, ...(p.sync || {}) };
+        if (!mergedSync.sheetUrl) mergedSync.sheetUrl = DEFAULT_SHEET_URL;
+        if (!mergedSync.formUrl) mergedSync.formUrl = DEFAULT_FORM_URL;
         if (!mergedSync.gasProxyUrl) mergedSync.gasProxyUrl = DEFAULT_GAS_PROXY;
         return { ...defaults(), ...p, sync: mergedSync };
       } catch { return defaults(); }
