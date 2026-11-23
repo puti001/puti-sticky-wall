@@ -140,7 +140,7 @@
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
     .dot.live { background: #16a34a; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
 
-    /* Sub-toolbar (Quick local add + Sort + Count) */
+    /* Sub-toolbar */
     .subbar {
       max-width: 1440px;
       width: 100%;
@@ -187,17 +187,8 @@
       flex-wrap: wrap;
     }
 
-    .pill-btn {
-      font-size: 0.78rem;
-      padding: 0.28rem 0.65rem;
-      border-radius: 999px;
-    }
-
-    .pill-btn.active {
-      background: #0f172a;
-      color: #fff;
-      border-color: #0f172a;
-    }
+    .pill-btn { font-size: 0.78rem; padding: 0.28rem 0.65rem; border-radius: 999px; }
+    .pill-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
 
     /* Sticky Notes Canvas */
     .wall-wrap {
@@ -216,7 +207,6 @@
     }
 
     .sticky {
-      position: relative;
       background: #fef08a;
       border: 1px solid #eab308;
       border-radius: 4px 14px 14px 14px;
@@ -234,14 +224,11 @@
       box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.18);
     }
 
-    .sticky.c1 { background: #fef08a; border-color: #eab308; } /* 經典黃 */
-    .sticky.c2 { background: #bae6fd; border-color: #38bdf8; } /* 天空藍 */
-    .sticky.c3 { background: #bbf7d0; border-color: #4ade80; } /* 薄荷綠 */
-    .sticky.c4 { background: #fed7aa; border-color: #fb923c; } /* 暖橘 */
-
-    .sticky.starred {
-      box-shadow: 0 0 0 3px #2563eb, 0 12px 24px -6px rgba(37, 99, 235, 0.25);
-    }
+    .sticky.c1 { background: #fef08a; border-color: #eab308; }
+    .sticky.c2 { background: #bae6fd; border-color: #38bdf8; }
+    .sticky.c3 { background: #bbf7d0; border-color: #4ade80; }
+    .sticky.c4 { background: #fed7aa; border-color: #fb923c; }
+    .sticky.starred { box-shadow: 0 0 0 3px #2563eb, 0 12px 24px -6px rgba(37, 99, 235, 0.25); }
 
     .sticky-text {
       font-size: 1.02rem;
@@ -269,41 +256,78 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 110px;
+      max-width: 115px;
     }
 
-    .sticky-btns {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
+    .sticky-btns { display: flex; align-items: center; gap: 0.25rem; }
 
     .mini {
-      font-size: 0.74rem;
-      padding: 0.16rem 0.46rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       border: 1px solid rgba(15, 23, 42, 0.14);
     }
-
-    .mini.on {
-      background: #2563eb;
-      color: #fff;
-      border-color: #2563eb;
-    }
+    .mini.on { background: #2563eb; color: #fff; border-color: #2563eb; }
 
     .empty-wall {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 4rem 1.5rem;
-      background: rgba(255, 255, 255, 0.85);
+      padding: 3.5rem 1.5rem;
+      background: rgba(255, 255, 255, 0.88);
       border: 2px dashed #cbd5e1;
       border-radius: 18px;
       color: var(--muted);
     }
-
     .empty-wall h2 { margin: 0 0 0.4rem; font-size: 1.25rem; color: var(--ink); }
     .empty-wall p { margin: 0; font-size: 0.94rem; }
+
+    /* Mobile Participant View */
+    .mobile-shell {
+      max-width: 560px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.85rem 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      flex: 1;
+    }
+    .m-header {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+    .m-topic {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin: 0.35rem 0 0;
+      color: var(--ink);
+    }
+    .m-form {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .m-like-btn {
+      font-size: 0.86rem;
+      padding: 0.32rem 0.72rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1.5px solid #cbd5e1;
+    }
+    .m-like-btn.liked {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
 
     /* Modal */
     .modal-bg {
@@ -420,58 +444,18 @@
   </style>
 </head>
 <body>
-  <!-- Top Bar -->
-  <header class="topbar">
-    <div class="topbar-row">
-      <span class="brand-tag">Puti-AI 萬用便利貼牆</span>
-      <input
-        id="topicInput"
-        class="topic-input"
-        type="text"
-        placeholder="輸入本輪討論題目（例：這單元學生最容易卡在哪？／給我一個 5 分鐘破冰點子）"
-      />
-      <div class="actions">
-        <button type="button" id="qrBtn">📱 掃碼 QR</button>
-        <button type="button" id="syncBtn"><span class="dot" id="syncDot"></span> <span id="syncText">同步</span></button>
-        <button type="button" id="newRoundBtn" class="warn" title="封存目前牆面並只接收接下來的新回覆（不刪除試算表資料）">🆕 開新回合</button>
-        <button type="button" id="copyAiBtn" class="primary">📋 複製全部丟 AI</button>
-        <button type="button" id="aiSummaryBtn">✨ AI 直接整理</button>
-        <button type="button" id="historyBtn">📁 紀錄 (<span id="histCount">0</span>)</button>
-        <button type="button" id="fontBtn" title="大螢幕放大字體">🔍 大字</button>
-        <button type="button" id="setupBtn">⚙️ 設定</button>
-      </div>
-    </div>
-  </header>
+  <div id="appRoot" style="display:flex;flex-direction:column;flex:1;"></div>
 
-  <!-- Sub-toolbar -->
-  <div class="subbar">
-    <div class="quick-add">
-      <input id="quickAuthor" type="text" placeholder="組別／暱稱" style="width:125px;" />
-      <input id="quickText" type="text" placeholder="現場口頭補充或自己貼一張便利貼（按 Enter 送出）..." style="flex:1;min-width:200px;" />
-      <button type="button" id="quickAddBtn" class="dark">➕ 貼上</button>
-    </div>
-
-    <div class="wall-meta">
-      <span>目前 <strong id="roundBadge">第 1 輪</strong> ・ <strong id="noteCount">0</strong> 張便利貼</span>
-      <button type="button" class="pill-btn active" id="sortNewBtn">最新</button>
-      <button type="button" class="pill-btn" id="sortVoteBtn">👍 最多</button>
-    </div>
-  </div>
-
-  <!-- Main Sticky Notes Wall -->
-  <main class="wall-wrap">
-    <div class="wall" id="wall"></div>
-  </main>
-
-  <!-- QR Modal -->
+  <!-- QR Modal (Host) -->
   <div class="modal-bg" id="qrModal">
-    <div class="modal qr-modal-card" id="qrModalCard" style="max-width:460px;text-align:center;">
+    <div class="modal qr-modal-card" id="qrModalCard" style="max-width:480px;text-align:center;">
       <div class="modal-head">
-        <h2>📱 手機掃碼貼便利貼</h2>
+        <h2>📱 手機掃碼貼便利貼＋互按讚</h2>
         <button type="button" data-close="qrModal">✕</button>
       </div>
       <div class="modal-body" id="qrBody" style="align-items:center;justify-content:center;flex:1;"></div>
       <div class="modal-foot">
+        <button type="button" id="qrSwitchModeBtn" style="margin-right:auto;">改用 Google 表單 QR</button>
         <button type="button" id="qrMaxToggleBtn">⛶ 放到最大</button>
         <button type="button" data-close="qrModal" class="primary">關閉</button>
       </div>
@@ -482,46 +466,38 @@
   <div class="modal-bg" id="setupModal">
     <div class="modal">
       <div class="modal-head">
-        <h2>⚙️ 萬用便利貼牆連線設定（一次設定，永久通用）</h2>
+        <h2>⚙️ 連線與 AI 設定</h2>
         <button type="button" data-close="setupModal">✕</button>
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>1. Google 試算表網址（共用權限設為「知道連結的人均可檢視」）</label>
-          <input id="inSheetUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/.../edit?usp=sharing" />
-        </div>
-        <div class="field">
-          <label>2. 學員掃碼填寫的 Google 表單網址（永遠只需要「組別/暱稱」＋「你的想法」兩題！）</label>
-          <input id="inFormUrl" type="text" placeholder="https://forms.gle/..." />
-        </div>
-        <label style="display:flex;align-items:center;gap:0.45rem;font-size:0.86rem;font-weight:700;cursor:pointer;">
-          <input type="checkbox" id="inAutoPoll" style="width:auto;" />
-          開啟自動同步（每 8 秒自動抓取新送出的便利貼）
-        </label>
-        <hr style="border:none;border-top:1px solid var(--border);margin:0.1rem 0;" />
-        <div class="field">
-          <label>3. GAS AI 代理網址（Key 藏在你的 Google 後端，換任何電腦都免填 Key）</label>
+          <label>1. GAS 雙向牆＋AI 代理網址（已預設接好，手機掃碼發文＋互按讚＋AI 整理全靠它）</label>
           <div style="display:flex;gap:0.4rem;">
             <input id="inGasProxyUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;" />
-            <button type="button" id="testProxyBtn">🔍 測試代理</button>
+            <button type="button" id="testProxyBtn">🔍 測試連線</button>
           </div>
           <div id="proxyStatusMsg" style="font-size:0.78rem;color:var(--subtle);margin-top:0.3rem;"></div>
         </div>
+        <label style="display:flex;align-items:center;gap:0.45rem;font-size:0.86rem;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="inAutoPoll" style="width:auto;" />
+          開啟自動即時更新（每 5 秒自動刷新大家的新便利貼與 👍 票數）
+        </label>
+        <hr style="border:none;border-top:1px solid var(--border);margin:0.1rem 0;" />
         <div class="field">
-          <label>4. 備用直連 Gemini API Key（有填上方 GAS 代理時可留空）</label>
+          <label>2. 備用：Google 試算表網址（若只用 Google 表單收集時選填）</label>
+          <input id="inSheetUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/.../edit?usp=sharing" />
+        </div>
+        <div class="field">
+          <label>3. 備用：Google 表單網址（若想切換成傳統表單 QR 時選填）</label>
+          <input id="inFormUrl" type="text" placeholder="https://forms.gle/..." />
+        </div>
+        <div class="field">
+          <label>4. 備用直連 Gemini API Key（已走上方 GAS 代理時留空即可）</label>
           <input id="inGeminiKey" type="password" placeholder="僅存本機瀏覽器，選填" />
         </div>
-        <details style="background:#f8fafc;padding:0.65rem 0.85rem;border-radius:10px;font-size:0.84rem;border:1px solid var(--border);">
-          <summary style="cursor:pointer;font-weight:800;">📖 萬用 2 題 Google 表單設定（一輩子只要建這一次）</summary>
-          <p style="margin:0.45rem 0 0;color:var(--muted);line-height:1.65;">
-            開一個永遠通用的 Google 表單，只放 2 題：<strong>① 組別／暱稱</strong>（簡答）、<strong>② 你的想法</strong>（段落）。<br/>
-            以後無論帶什麼課、口頭問什麼題目，都用同一個 QR Code！換下一題時只要在網頁按 <strong>「🆕 開新回合」</strong>，舊便利貼會存進歷史紀錄、牆面瞬間淨空只收新回覆。
-          </p>
-        </details>
       </div>
       <div class="modal-foot">
         <button type="button" id="demoBtn">🧪 載入示範便利貼</button>
-        <button type="button" id="unignoreBtn" title="若想把之前開新回合隱藏掉的試算表舊資料重抓回來">↺ 重抓試算表全部資料</button>
         <button type="button" id="saveSetupBtn" class="primary">💾 儲存並同步</button>
       </div>
     </div>
@@ -567,23 +543,35 @@
   </footer>
 
   <script>
-    const STORE = "puti_universal_sticky_wall_v1";
+    const STORE = "puti_universal_sticky_wall_v2";
+    const MOBILE_NICK_KEY = "puti_wall_mobile_nick";
+    const MOBILE_VOTED_KEY = "puti_wall_mobile_voted";
     const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1yI2LXh3jrqaEsbV__IoUFcJuOOwoG3DbwBqYo82GWXU/edit?usp=drivesdk";
     const DEFAULT_FORM_URL = "https://forms.gle/52gecPdK85hRJQdL8";
     const DEFAULT_GAS_PROXY = "https://script.google.com/macros/s/AKfycbyw_vR_RPa8iDcnmJFxd7nRKFaBX-H2m-plX225TZSYbmOxf5Fg87LWBBcTSJnaoIG0/exec";
+    const LIVE_HOST_BASE = "https://puti001.github.io/puti-sticky-wall/";
+
+    const IS_MOBILE = new URLSearchParams(location.search).get("view") === "mobile";
     let state = load();
     let pollTimer = null;
+    let topicDebounce = null;
+    let qrMode = "mobile"; // mobile | form
 
     function defaults() {
       return {
         round: 1,
         topic: "",
-        sortBy: "new", // new | votes
+        sortBy: "new",
         bigFont: false,
-        sync: { sheetUrl: DEFAULT_SHEET_URL, formUrl: DEFAULT_FORM_URL, autoPoll: false, gasProxyUrl: DEFAULT_GAS_PROXY, geminiKey: "" },
-        notes: [],       // { id, author, text, votes, starred, colorIdx, ts }
-        ignoredIds: [],  // row IDs archived from previous rounds
-        history: []      // { round, topic, time, notes, summary }
+        sync: {
+          sheetUrl: DEFAULT_SHEET_URL,
+          formUrl: DEFAULT_FORM_URL,
+          autoPoll: true,
+          gasProxyUrl: DEFAULT_GAS_PROXY,
+          geminiKey: ""
+        },
+        notes: [],
+        history: []
       };
     }
 
@@ -615,168 +603,70 @@
       return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    /* ---- Google Sheet JSONP & CSV Sync ---- */
-    function fetchJsonp(sheetId, gid) {
-      return new Promise((resolve, reject) => {
-        const cb = "__putiWallCb_" + Date.now() + "_" + Math.floor(Math.random() * 9999);
-        const sc = document.createElement("script");
-        let done = false;
-        const clean = () => { delete window[cb]; sc.remove(); };
-        const t = setTimeout(() => {
-          if (!done) { done = true; clean(); reject(new Error("連線逾時")); }
-        }, 10000);
+    /* ---- GAS Two-Way API ---- */
+    async function gasGetWall() {
+      const url = (state.sync.gasProxyUrl || DEFAULT_GAS_PROXY).trim();
+      const res = await fetch(url + "?_t=" + Date.now());
+      const raw = await res.text();
+      if (raw.trim().startsWith("<")) throw new Error("GAS 尚未開放權限");
+      const data = JSON.parse(raw);
+      if (!data.ok) throw new Error(data.error || "GAS 讀取失敗");
+      return data;
+    }
 
-        window[cb] = (res) => {
-          if (done) return;
-          done = true; clearTimeout(t); clean();
-          if (!res || res.status === "error") {
-            reject(new Error(res?.errors?.[0]?.message || "讀取失敗"));
-            return;
-          }
-          const tb = res.table || {};
-          const labels = (tb.cols || []).map((c) => (c.label || "").trim());
-          const rows = [];
-          if (labels.some(Boolean)) rows.push(labels);
-          (tb.rows || []).forEach((r) => {
-            const cells = (r.c || []).map((cell) => cell ? String(cell.f ?? cell.v ?? "").trim() : "");
-            if (cells.some(Boolean)) rows.push(cells);
-          });
-          resolve(rows);
-        };
-
-        sc.onerror = () => {
-          if (done) return;
-          done = true; clearTimeout(t); clean();
-          reject(new Error("無法讀取，請確認試算表權限為「知道連結的人均可檢視」"));
-        };
-
-        const g = gid ? `&gid=${encodeURIComponent(gid)}` : "";
-        sc.src = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=${encodeURIComponent("out:json;responseHandler:" + cb)}${g}&_t=${Date.now()}`;
-        document.head.appendChild(sc);
+    async function gasPost(payload) {
+      const url = (state.sync.gasProxyUrl || DEFAULT_GAS_PROXY).trim();
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
       });
+      const raw = await res.text();
+      if (raw.trim().startsWith("<")) throw new Error("GAS 尚未開放權限");
+      const data = JSON.parse(raw);
+      if (!data.ok) throw new Error(data.error || "操作失敗");
+      return data;
     }
 
-    function parseCsv(text) {
-      const rows = []; let row = [], f = "", q = false;
-      for (let i = 0; i < text.length; i++) {
-        const c = text[i], n = text[i + 1];
-        if (q) { if (c === '"' && n === '"') { f += '"'; i++; } else if (c === '"') q = false; else f += c; }
-        else {
-          if (c === '"') q = true;
-          else if (c === ",") { row.push(f.trim()); f = ""; }
-          else if ((c === "\r" && n === "\n") || c === "\n" || c === "\r") {
-            if (c === "\r" && n === "\n") i++;
-            row.push(f.trim()); rows.push(row); row = []; f = "";
-          } else f += c;
-        }
+    function applyServerState(data, isUserEditTopic = false) {
+      if (typeof data.round === "number") state.round = data.round;
+      if (typeof data.topic === "string" && !isUserEditTopic) {
+        state.topic = data.topic;
+        const tInput = document.getElementById("topicInput");
+        if (tInput && document.activeElement !== tInput) tInput.value = data.topic;
       }
-      if (f || row.length) { row.push(f.trim()); rows.push(row); }
-      return rows.filter((r) => r.some(Boolean));
+      if (Array.isArray(data.notes)) state.notes = data.notes;
+      save();
+      renderCurrentView();
     }
 
-    function hashRow(s) {
-      let h = 0;
-      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-      return "gs-" + Math.abs(h).toString(36);
-    }
-
-    async function fetchSheetRows() {
-      const raw = (state.sync.sheetUrl || "").trim();
-      if (!raw) throw new Error("尚未設定 Google 試算表網址");
-      const idM = raw.match(/\/spreadsheets\/d\/(?!e\/)([a-zA-Z0-9-_]+)/);
-      const gidM = raw.match(/[?#&]gid=(\d+)/);
-      if (idM) return await fetchJsonp(idM[1], gidM ? gidM[1] : "");
-      const csvUrl = raw.includes("/pubhtml") ? raw.replace("/pubhtml", "/pub?output=csv") : raw;
-      const res = await fetch(csvUrl + (csvUrl.includes("?") ? "&" : "?") + "_t=" + Date.now());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return parseCsv(await res.text());
-    }
-
-    function extractNotesFromRows(rows) {
-      if (!rows || rows.length < 2) return [];
-      const hdr = rows[0].map((h) => h.toLowerCase());
-      const findCol = (kws, fb) => {
-        const idx = hdr.findIndex((h) => kws.some((k) => h.includes(k)));
-        return idx >= 0 ? idx : fb;
-      };
-      const cTime = findCol(["時間", "timestamp"], 0);
-      const cAuthor = findCol(["組", "名", "暱稱", "作者", "誰", "name"], rows[0].length >= 3 ? 1 : -1);
-      const cIdea = findCol(["想法", "點子", "意見", "內容", "回應", "idea"], rows[0].length - 1);
-
-      const list = [];
-      for (let i = 1; i < rows.length; i++) {
-        const r = rows[i];
-        const text = (r[cIdea] || "").trim();
-        if (!text) continue;
-        const author = cAuthor >= 0 ? (r[cAuthor] || "匿名").trim() : "匿名";
-        const id = hashRow(`${r[cTime] || i}|${author}|${text}`);
-        list.push({ id, author, text });
-      }
-      return list;
-    }
-
-    async function syncSheet(silent = false) {
-      if (!state.sync.sheetUrl) {
-        if (!silent) toast("請先點右上角「⚙️ 設定」貼上 Google 試算表網址");
-        return;
-      }
+    async function syncWall(silent = false) {
       try {
-        const rows = await fetchSheetRows();
-        if (!rows.length) {
-          if (!silent) toast("✅ 已連線試算表！目前尚無資料");
-          return;
-        }
-        if (rows.length < 2) {
-          if (!silent) toast("✅ 已連線試算表（目前只有標題列，尚無回覆）");
-          return;
-        }
-        const incoming = extractNotesFromRows(rows);
-        const existing = new Set(state.notes.map((n) => n.id));
-        const ignored = new Set(state.ignoredIds);
-        let added = 0;
-
-        incoming.forEach((item, idx) => {
-          if (!existing.has(item.id) && !ignored.has(item.id)) {
-            state.notes.unshift({
-              id: item.id,
-              author: item.author,
-              text: item.text,
-              votes: 1,
-              starred: false,
-              colorIdx: ((state.notes.length + idx) % 4) + 1,
-              ts: Date.now() + idx
-            });
-            added++;
-          }
-        });
-
-        save();
-        renderWall();
-        if (!silent || added > 0) {
-          toast(added ? `🔄 新增 ${added} 張便利貼！` : "✅ 已同步，尚無新便利貼");
+        const data = await gasGetWall();
+        const prevTopic = state.topic;
+        const prevLen = state.notes.length;
+        applyServerState(data);
+        if (!silent) {
+          toast(`🔄 已同步第 ${state.round} 輪（共 ${state.notes.length} 張）`);
+        } else if (state.notes.length > prevLen || state.topic !== prevTopic) {
+          // Subtle passive update
         }
       } catch (err) {
         if (!silent) toast("同步失敗：" + err.message);
       }
     }
 
-    function updateSyncUI() {
+    function setupPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       const dot = document.getElementById("syncDot");
       const txt = document.getElementById("syncText");
-      if (state.sync.sheetUrl) {
-        dot.classList.add("live");
-        txt.textContent = state.sync.autoPoll ? "自動同步中" : "同步";
-      } else {
-        dot.classList.remove("live");
-        txt.textContent = "同步";
-      }
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-      if (state.sync.sheetUrl && state.sync.autoPoll) {
-        pollTimer = setInterval(() => syncSheet(true), 8000);
+      if (dot) dot.classList.add("live");
+      if (txt) txt.textContent = state.sync.autoPoll ? "即時連線" : "同步";
+      if (IS_MOBILE || state.sync.autoPoll) {
+        pollTimer = setInterval(() => syncWall(true), 5000);
       }
     }
 
-    /* ---- Render Wall ---- */
     function getSortedNotes() {
       const arr = [...state.notes];
       if (state.sortBy === "votes") {
@@ -787,20 +677,206 @@
       return arr;
     }
 
-    function renderWall() {
-      document.getElementById("roundBadge").textContent = `第 ${state.round} 輪`;
-      document.getElementById("noteCount").textContent = state.notes.length;
-      document.getElementById("histCount").textContent = state.history.length;
+    /* ============================================================
+       VIEW 1: MOBILE PARTICIPANT VIEW (?view=mobile)
+       ============================================================ */
+    function getVotedSet() {
+      try { return new Set(JSON.parse(localStorage.getItem(MOBILE_VOTED_KEY) || "[]")); }
+      catch { return new Set(); }
+    }
+    function saveVotedSet(set) {
+      try { localStorage.setItem(MOBILE_VOTED_KEY, JSON.stringify(Array.from(set))); } catch {}
+    }
+
+    function renderMobileShell() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="mobile-shell">
+          <div class="m-header">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+              <span class="brand-tag">Puti-AI 現場共創 · 第 <span id="mRound">${state.round}</span> 輪</span>
+              <button type="button" id="mRefreshBtn" style="font-size:0.78rem;padding:0.28rem 0.6rem;">🔄 刷新</button>
+            </div>
+            <p class="m-topic" id="mTopic">${esc(state.topic || "請依講師口頭題目送出你的想法 👇")}</p>
+          </div>
+
+          <div class="m-form">
+            <input id="mAuthor" type="text" placeholder="你的組別／暱稱" />
+            <textarea id="mText" rows="2" placeholder="輸入你的點子或想法..."></textarea>
+            <button type="button" id="mSubmitBtn" class="primary" style="justify-content:center;font-size:0.98rem;padding:0.6rem;">🚀 送出貼上牆</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0.15rem;">
+            <span style="font-size:0.84rem;color:var(--muted);font-weight:700;">大家貼上的便利貼（<span id="mCount">0</span>）｜點 👍 按讚</span>
+            <div style="display:flex;gap:0.35rem;">
+              <button type="button" class="pill-btn ${state.sortBy === "new" ? "active" : ""}" id="mSortNew">最新</button>
+              <button type="button" class="pill-btn ${state.sortBy === "votes" ? "active" : ""}" id="mSortVote">👍 最多</button>
+            </div>
+          </div>
+
+          <div class="wall" id="mWall"></div>
+
+          <div style="text-align:center;margin-top:0.5rem;">
+            <a href="${location.pathname}" style="font-size:0.78rem;color:var(--subtle);">切換回講師大螢幕模式</a>
+          </div>
+        </div>
+      `;
+
+      const nickEl = document.getElementById("mAuthor");
+      nickEl.value = localStorage.getItem(MOBILE_NICK_KEY) || "";
+      nickEl.oninput = (e) => localStorage.setItem(MOBILE_NICK_KEY, e.target.value);
+
+      document.getElementById("mRefreshBtn").onclick = () => syncWall(false);
+      document.getElementById("mSortNew").onclick = () => { state.sortBy = "new"; renderMobileWall(); };
+      document.getElementById("mSortVote").onclick = () => { state.sortBy = "votes"; renderMobileWall(); };
+
+      const submitBtn = document.getElementById("mSubmitBtn");
+      submitBtn.onclick = async () => {
+        const textEl = document.getElementById("mText");
+        const text = textEl.value.trim();
+        if (!text) { toast("請先輸入想法內容"); textEl.focus(); return; }
+        const author = nickEl.value.trim() || "老師";
+        localStorage.setItem(MOBILE_NICK_KEY, author);
+        submitBtn.disabled = true;
+        submitBtn.textContent = "⏳ 送出中...";
+        try {
+          const data = await gasPost({ action: "add", author, text });
+          textEl.value = "";
+          applyServerState(data);
+          toast("✅ 已貼上大螢幕牆！");
+        } catch (err) {
+          toast("送出失敗：" + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "🚀 送出貼上牆";
+        }
+      };
+
+      renderMobileWall();
+    }
+
+    function renderMobileWall() {
+      const mRound = document.getElementById("mRound");
+      const mTopic = document.getElementById("mTopic");
+      const mCount = document.getElementById("mCount");
+      const wall = document.getElementById("mWall");
+      if (!wall) return;
+
+      mRound.textContent = state.round;
+      mTopic.textContent = state.topic || "請依講師口頭題目送出你的想法 👇";
+      mCount.textContent = state.notes.length;
+      document.getElementById("mSortNew").classList.toggle("active", state.sortBy === "new");
+      document.getElementById("mSortVote").classList.toggle("active", state.sortBy === "votes");
+
+      const list = getSortedNotes();
+      if (!list.length) {
+        wall.innerHTML = `<div class="empty-wall" style="padding:2rem 1rem;"><p>目前還沒人貼上便利貼，搶頭香送出第一張吧！</p></div>`;
+        return;
+      }
+
+      const voted = getVotedSet();
+      wall.innerHTML = list.map((n) => {
+        const isLiked = voted.has(n.id);
+        return `
+          <div class="sticky c${n.colorIdx || 1} ${n.starred ? "starred" : ""}" style="min-height:110px;">
+            <div class="sticky-text">${esc(n.text)}</div>
+            <div class="sticky-foot">
+              <span class="sticky-author">${esc(n.author)}</span>
+              <button type="button" class="m-like-btn ${isLiked ? "liked" : ""}" data-mlike="${n.id}">
+                👍 ${isLiked ? "已讚" : "讚"} (${n.votes || 0})
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      wall.querySelectorAll("[data-mlike]").forEach((btn) => {
+        btn.onclick = async () => {
+          const id = btn.dataset.mlike;
+          const votedSet = getVotedSet();
+          const already = votedSet.has(id);
+          const delta = already ? -1 : 1;
+
+          // Optimistic UI update
+          if (already) votedSet.delete(id); else votedSet.add(id);
+          saveVotedSet(votedSet);
+          const target = state.notes.find((x) => x.id === id);
+          if (target) target.votes = Math.max(0, (target.votes || 0) + delta);
+          renderMobileWall();
+
+          try {
+            const data = await gasPost({ action: "vote", id, delta });
+            applyServerState(data);
+          } catch (err) {
+            toast("按讚同步失敗：" + err.message);
+          }
+        };
+      });
+    }
+
+    /* ============================================================
+       VIEW 2: HOST / PROJECTOR VIEW
+       ============================================================ */
+    function renderHostShell() {
+      document.getElementById("appRoot").innerHTML = `
+        <header class="topbar">
+          <div class="topbar-row">
+            <span class="brand-tag">Puti-AI 萬用便利貼牆</span>
+            <input id="topicInput" class="topic-input" type="text"
+              placeholder="輸入本輪討論題目（手機掃碼端會同步看到這題）" value="${esc(state.topic)}" />
+            <div class="actions">
+              <button type="button" id="qrBtn">📱 掃碼 QR</button>
+              <button type="button" id="syncBtn"><span class="dot live" id="syncDot"></span> <span id="syncText">即時連線</span></button>
+              <button type="button" id="newRoundBtn" class="warn" title="封存目前牆面並開下一輪">🆕 開新回合</button>
+              <button type="button" id="copyAiBtn" class="primary">📋 複製全部丟 AI</button>
+              <button type="button" id="aiSummaryBtn">✨ AI 直接整理</button>
+              <button type="button" id="historyBtn">📁 紀錄 (<span id="histCount">0</span>)</button>
+              <button type="button" id="fontBtn" title="大螢幕放大字體">🔍 大字</button>
+              <button type="button" id="setupBtn">⚙️ 設定</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="subbar">
+          <div class="quick-add">
+            <input id="quickAuthor" type="text" placeholder="組別／暱稱" style="width:125px;" />
+            <input id="quickText" type="text" placeholder="講師代打或現場補充一張便利貼（Enter 送出）..." style="flex:1;min-width:200px;" />
+            <button type="button" id="quickAddBtn" class="dark">➕ 貼上</button>
+          </div>
+          <div class="wall-meta">
+            <span>目前 <strong id="roundBadge">第 ${state.round} 輪</strong> ・ <strong id="noteCount">0</strong> 張便利貼</span>
+            <button type="button" class="pill-btn active" id="sortNewBtn">最新</button>
+            <button type="button" class="pill-btn" id="sortVoteBtn">👍 最多</button>
+          </div>
+        </div>
+
+        <main class="wall-wrap">
+          <div class="wall" id="wall"></div>
+        </main>
+      `;
+
+      bindHostEvents();
+      renderHostWall();
+    }
+
+    function renderHostWall() {
+      const roundEl = document.getElementById("roundBadge");
+      const countEl = document.getElementById("noteCount");
+      const histEl = document.getElementById("histCount");
+      const wall = document.getElementById("wall");
+      if (!wall) return;
+
+      roundEl.textContent = `第 ${state.round} 輪`;
+      countEl.textContent = state.notes.length;
+      histEl.textContent = state.history.length;
       document.getElementById("sortNewBtn").classList.toggle("active", state.sortBy === "new");
       document.getElementById("sortVoteBtn").classList.toggle("active", state.sortBy === "votes");
 
       const list = getSortedNotes();
-      const wall = document.getElementById("wall");
       if (!list.length) {
         wall.innerHTML = `
           <div class="empty-wall">
-            <h2>這裡是第 ${state.round} 輪的空白便利貼牆</h2>
-            <p>上方輸入討論題目 → 點「📱 掃碼 QR」給大家手機打字，或直接在左上角快速貼上第一張便利貼！</p>
+            <h2>第 ${state.round} 輪準備就緒！</h2>
+            <p>上方輸入討論題目 → 點「📱 掃碼 QR」讓大家手機掃進去發文＋互按讚！</p>
           </div>
         `;
         return;
@@ -821,28 +897,188 @@
       `).join("");
 
       wall.querySelectorAll("[data-vote]").forEach((b) => {
-        b.onclick = () => {
-          const n = state.notes.find((x) => x.id === b.dataset.vote);
-          if (n) { n.votes = (n.votes || 0) + 1; save(); renderWall(); }
+        b.onclick = async () => {
+          const id = b.dataset.vote;
+          const n = state.notes.find((x) => x.id === id);
+          if (n) { n.votes = (n.votes || 0) + 1; renderHostWall(); }
+          try { applyServerState(await gasPost({ action: "vote", id, delta: 1 })); } catch {}
         };
       });
       wall.querySelectorAll("[data-star]").forEach((b) => {
-        b.onclick = () => {
-          const n = state.notes.find((x) => x.id === b.dataset.star);
-          if (n) { n.starred = !n.starred; save(); renderWall(); }
+        b.onclick = async () => {
+          const id = b.dataset.star;
+          const n = state.notes.find((x) => x.id === id);
+          if (n) { n.starred = !n.starred; renderHostWall(); }
+          try { applyServerState(await gasPost({ action: "star", id })); } catch {}
         };
       });
       wall.querySelectorAll("[data-del]").forEach((b) => {
-        b.onclick = () => {
+        b.onclick = async () => {
           const id = b.dataset.del;
           state.notes = state.notes.filter((x) => x.id !== id);
-          if (id.startsWith("gs-") && !state.ignoredIds.includes(id)) state.ignoredIds.push(id);
-          save(); renderWall();
+          renderHostWall();
+          try { applyServerState(await gasPost({ action: "delete", id })); } catch {}
         };
       });
     }
 
-    /* ---- AI Prompt Builder & Direct Gemini ---- */
+    function bindHostEvents() {
+      const topicEl = document.getElementById("topicInput");
+      topicEl.oninput = (e) => {
+        state.topic = e.target.value;
+        save();
+        clearTimeout(topicDebounce);
+        topicDebounce = setTimeout(async () => {
+          try { await gasPost({ action: "set_topic", topic: state.topic }); } catch {}
+        }, 650);
+      };
+
+      const addLocal = async () => {
+        const textEl = document.getElementById("quickText");
+        const text = textEl.value.trim();
+        if (!text) return;
+        const author = document.getElementById("quickAuthor").value.trim() || "現場老師";
+        textEl.value = "";
+        try {
+          const data = await gasPost({ action: "add", author, text });
+          applyServerState(data);
+        } catch (err) {
+          toast("貼上失敗：" + err.message);
+        }
+        textEl.focus();
+      };
+      document.getElementById("quickAddBtn").onclick = addLocal;
+      document.getElementById("quickText").onkeydown = (e) => { if (e.key === "Enter") addLocal(); };
+
+      document.getElementById("sortNewBtn").onclick = () => { state.sortBy = "new"; save(); renderHostWall(); };
+      document.getElementById("sortVoteBtn").onclick = () => { state.sortBy = "votes"; save(); renderHostWall(); };
+
+      document.getElementById("syncBtn").onclick = () => syncWall(false);
+
+      document.getElementById("newRoundBtn").onclick = async () => {
+        if (state.notes.length > 0 && !confirm(`確定結束「第 ${state.round} 輪」並開新回合嗎？\n（目前的 ${state.notes.length} 張便利貼會自動存進「📁 紀錄」，手機端也會一起切換到下一輪！）`)) {
+          return;
+        }
+        if (state.notes.length > 0) {
+          state.history.unshift({
+            round: state.round,
+            topic: state.topic.trim() || `第 ${state.round} 輪討論`,
+            time: new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }),
+            notes: [...state.notes],
+            summary: state.lastSummary || ""
+          });
+        }
+        try {
+          const data = await gasPost({ action: "new_round", topic: "" });
+          state.lastSummary = "";
+          document.getElementById("topicInput").value = "";
+          applyServerState(data);
+          toast(`🆕 已開第 ${state.round} 輪！手機端已同步清空`);
+        } catch (err) {
+          toast("開新回合失敗：" + err.message);
+        }
+      };
+
+      document.getElementById("copyAiBtn").onclick = async () => {
+        if (!state.notes.length) { toast("牆上還沒有便利貼可以複製！"); return; }
+        try {
+          await navigator.clipboard.writeText(buildAiPrompt());
+          toast(`📋 已複製「${state.notes.length} 張便利貼」整理指令！`);
+        } catch { toast("複製失敗"); }
+      };
+
+      document.getElementById("aiSummaryBtn").onclick = runDirectGemini;
+
+      const fontBtn = document.getElementById("fontBtn");
+      const applyFont = () => {
+        document.documentElement.classList.toggle("big-font", state.bigFont);
+        fontBtn.classList.toggle("dark", state.bigFont);
+        fontBtn.textContent = state.bigFont ? "🔍 大字中" : "🔍 大字";
+      };
+      fontBtn.onclick = () => { state.bigFont = !state.bigFont; applyFont(); save(); };
+      applyFont();
+
+      document.getElementById("qrBtn").onclick = () => {
+        qrMode = "mobile";
+        renderQrModal();
+        openModal("qrModal");
+      };
+
+      document.getElementById("setupBtn").onclick = () => {
+        document.getElementById("inGasProxyUrl").value = state.sync.gasProxyUrl || DEFAULT_GAS_PROXY;
+        document.getElementById("inAutoPoll").checked = state.sync.autoPoll;
+        document.getElementById("inSheetUrl").value = state.sync.sheetUrl;
+        document.getElementById("inFormUrl").value = state.sync.formUrl;
+        document.getElementById("inGeminiKey").value = state.sync.geminiKey;
+        document.getElementById("proxyStatusMsg").textContent = "";
+        openModal("setupModal");
+      };
+
+      document.getElementById("historyBtn").onclick = () => {
+        const body = document.getElementById("historyBody");
+        if (!state.history.length) {
+          body.innerHTML = `<p style="color:var(--muted);text-align:center;margin:1.5rem 0;">尚未有封存的回合。按「🆕 開新回合」後，上一輪的便利貼會保存在這裡。</p>`;
+        } else {
+          body.innerHTML = state.history.map((h) => `
+            <div class="history-item">
+              <div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:0.35rem;">
+                <span>第 ${h.round} 輪｜${esc(h.topic)}</span>
+                <span style="font-size:0.78rem;color:var(--subtle);">${h.time}（${h.notes.length} 張）</span>
+              </div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:0.84rem;">
+                ${h.notes.map((n) => `<li><strong>${esc(n.author)}</strong>：${esc(n.text)} (👍${n.votes || 0})</li>`).join("")}
+              </ul>
+            </div>
+          `).join("");
+        }
+        openModal("historyModal");
+      };
+    }
+
+    /* ---- QR Modal Logic ---- */
+    function renderQrModal() {
+      const body = document.getElementById("qrBody");
+      const maxBtn = document.getElementById("qrMaxToggleBtn");
+      const swBtn = document.getElementById("qrSwitchModeBtn");
+      toggleQrMax(false);
+
+      const mobileBase = location.protocol === "file:" ? LIVE_HOST_BASE : (location.origin + location.pathname);
+      const mobileUrl = mobileBase + "?view=mobile";
+      const formUrl = (state.sync.formUrl || "").trim();
+
+      const targetUrl = qrMode === "mobile" ? mobileUrl : formUrl;
+      swBtn.textContent = qrMode === "mobile" ? "切換成 Google 表單 QR" : "切回手機互動牆 QR（可按讚）";
+
+      if (targetUrl) {
+        maxBtn.style.display = "inline-flex";
+        body.innerHTML = `
+          <img id="qrZoomImg" class="qr-img-zoomable" src="https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=${encodeURIComponent(targetUrl)}" alt="QR Code" title="點擊放到最大 / 縮小" />
+          <p style="margin:0.5rem 0 0;font-size:1rem;font-weight:800;">
+            ${qrMode === "mobile" ? "📱 掃碼進入「手機互動牆」：可發文＋互相按 👍！" : "📝 掃碼填寫 Google 表單"}
+          </p>
+          <span style="font-size:0.78rem;color:var(--subtle);">💡 再點一下 QR Code 圖片即可放到全螢幕最大</span>
+        `;
+        document.getElementById("qrZoomImg").onclick = () => toggleQrMax();
+      } else {
+        maxBtn.style.display = "none";
+        body.innerHTML = `<p style="color:var(--muted);">尚未設定 Google 表單網址。</p>`;
+      }
+    }
+
+    function toggleQrMax(force) {
+      const card = document.getElementById("qrModalCard");
+      const isMax = typeof force === "boolean" ? force : !card.classList.contains("qr-max");
+      card.classList.toggle("qr-max", isMax);
+      const tBtn = document.getElementById("qrMaxToggleBtn");
+      if (tBtn) tBtn.textContent = isMax ? "🗗 還原大小" : "⛶ 放到最大";
+    }
+    document.getElementById("qrMaxToggleBtn").onclick = () => toggleQrMax();
+    document.getElementById("qrSwitchModeBtn").onclick = () => {
+      qrMode = qrMode === "mobile" ? "form" : "mobile";
+      renderQrModal();
+    };
+
+    /* ---- AI Prompt & Direct Gemini ---- */
     function buildAiPrompt() {
       const topic = state.topic.trim() || "現場討論主題（由講師口頭說明）";
       const sorted = [...state.notes].sort((a, b) => (b.starred - a.starred) || ((b.votes || 0) - (a.votes || 0)));
@@ -863,30 +1099,16 @@ ${lines}
 
     async function runDirectGemini() {
       if (!state.notes.length) { toast("牆上還沒有便利貼喔！"); return; }
-      const proxyUrl = (state.sync.gasProxyUrl || "").trim();
+      const proxyUrl = (state.sync.gasProxyUrl || DEFAULT_GAS_PROXY).trim();
       const key = (state.sync.geminiKey || "").trim();
-      if (!proxyUrl && !key) {
-        toast("尚未設定 GAS 代理或 Gemini Key，請先點「📋 複製全部丟 AI」");
-        return;
-      }
       document.getElementById("aiOutputBox").textContent = "⏳ AI 正在閱讀牆上所有便利貼並統整中...";
       openModal("aiModal");
       try {
         let text = "";
         if (proxyUrl) {
-          const res = await fetch(proxyUrl, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ prompt: buildAiPrompt() })
-          });
-          const rawText = await res.text();
-          if (rawText.trim().startsWith("<")) {
-            throw new Error("GAS 尚未授權或未設為「所有人」可存取，請先到 GAS 部署一次授權");
-          }
-          const data = JSON.parse(rawText);
-          if (!data.ok) throw new Error(data.error || "GAS 代理回傳錯誤");
+          const data = await gasPost({ action: "ai", prompt: buildAiPrompt() });
           text = data.text || "";
-        } else {
+        } else if (key) {
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -895,6 +1117,8 @@ ${lines}
           const data = await res.json();
           if (!res.ok) throw new Error(data.error?.message || res.status);
           text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        } else {
+          throw new Error("未設定 GAS 代理或 Gemini Key");
         }
         document.getElementById("aiOutputBox").textContent = text || "無回傳內容";
         state.lastSummary = text;
@@ -904,150 +1128,14 @@ ${lines}
       }
     }
 
-    /* ---- New Round (Clock-proof snapshot ignore) ---- */
-    async function startNewRound() {
-      if (state.notes.length > 0 && !confirm(`確定結束「第 ${state.round} 輪」並淨空牆面開始下一輪嗎？\n（目前的 ${state.notes.length} 張便利貼會自動存進「📁 紀錄」，試算表資料也不會被刪除）`)) {
-        return;
-      }
-      // Snapshot any current sheet rows so old rows never re-appear in the new round
-      if (state.sync.sheetUrl) {
-        try {
-          const rows = await fetchSheetRows();
-          const currentSheetNotes = extractNotesFromRows(rows);
-          const ig = new Set(state.ignoredIds);
-          currentSheetNotes.forEach((n) => ig.add(n.id));
-          state.ignoredIds = Array.from(ig);
-        } catch {}
-      }
-
-      if (state.notes.length > 0) {
-        state.history.unshift({
-          round: state.round,
-          topic: state.topic.trim() || `第 ${state.round} 輪討論`,
-          time: new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }),
-          notes: [...state.notes],
-          summary: state.lastSummary || ""
-        });
-      }
-
-      state.notes = [];
-      state.lastSummary = "";
-      state.round += 1;
-      state.topic = "";
-      document.getElementById("topicInput").value = "";
-      save();
-      renderWall();
-      toast(`🆕 已進入第 ${state.round} 輪！可輸入新題目繼續收點子`);
-    }
-
-    /* ---- Modals & Events ---- */
+    /* ---- Global Modals ---- */
     function openModal(id) { document.getElementById(id).classList.add("open"); }
     function closeModal(id) { document.getElementById(id).classList.remove("open"); }
     document.querySelectorAll("[data-close]").forEach((b) => b.onclick = () => closeModal(b.dataset.close));
     document.querySelectorAll(".modal-bg").forEach((bg) => bg.onclick = (e) => { if (e.target === bg) bg.classList.remove("open"); });
 
-    // Topic
-    const topicEl = document.getElementById("topicInput");
-    topicEl.value = state.topic || "";
-    topicEl.oninput = (e) => { state.topic = e.target.value; save(); };
-
-    // Quick Add
-    function addLocalNote() {
-      const textEl = document.getElementById("quickText");
-      const text = textEl.value.trim();
-      if (!text) return;
-      const author = document.getElementById("quickAuthor").value.trim() || "現場老師";
-      state.notes.unshift({
-        id: "loc-" + Date.now() + Math.random().toString(36).slice(2, 5),
-        author,
-        text,
-        votes: 1,
-        starred: false,
-        colorIdx: (state.notes.length % 4) + 1,
-        ts: Date.now()
-      });
-      textEl.value = "";
-      save();
-      renderWall();
-      textEl.focus();
-    }
-    document.getElementById("quickAddBtn").onclick = addLocalNote;
-    document.getElementById("quickText").onkeydown = (e) => { if (e.key === "Enter") addLocalNote(); };
-
-    // Sort
-    document.getElementById("sortNewBtn").onclick = () => { state.sortBy = "new"; save(); renderWall(); };
-    document.getElementById("sortVoteBtn").onclick = () => { state.sortBy = "votes"; save(); renderWall(); };
-
-    // Top Buttons
-    document.getElementById("syncBtn").onclick = () => syncSheet(false);
-    document.getElementById("newRoundBtn").onclick = startNewRound;
-    document.getElementById("copyAiBtn").onclick = async () => {
-      if (!state.notes.length) { toast("牆上還沒有便利貼可以複製！"); return; }
-      try {
-        await navigator.clipboard.writeText(buildAiPrompt());
-        toast(`📋 已複製「${state.notes.length} 張便利貼」整理指令，直接去 Gemini 貼上即可！`);
-      } catch { toast("複製失敗"); }
-    };
-    document.getElementById("aiSummaryBtn").onclick = runDirectGemini;
     document.getElementById("copyAiResultBtn").onclick = async () => {
       try { await navigator.clipboard.writeText(document.getElementById("aiOutputBox").textContent); toast("已複製整理結果！"); } catch {}
-    };
-
-    const fontBtn = document.getElementById("fontBtn");
-    function applyFontState() {
-      document.documentElement.classList.toggle("big-font", state.bigFont);
-      fontBtn.classList.toggle("dark", state.bigFont);
-      fontBtn.textContent = state.bigFont ? "🔍 大字中" : "🔍 大字";
-    }
-    fontBtn.onclick = () => {
-      state.bigFont = !state.bigFont;
-      applyFontState();
-      save();
-    };
-    applyFontState();
-
-    // QR Modal
-    function toggleQrMax(force) {
-      const card = document.getElementById("qrModalCard");
-      const isMax = typeof force === "boolean" ? force : !card.classList.contains("qr-max");
-      card.classList.toggle("qr-max", isMax);
-      const tBtn = document.getElementById("qrMaxToggleBtn");
-      if (tBtn) tBtn.textContent = isMax ? "🗗 還原大小" : "⛶ 放到最大";
-    }
-    document.getElementById("qrMaxToggleBtn").onclick = () => toggleQrMax();
-
-    document.getElementById("qrBtn").onclick = () => {
-      const fUrl = (state.sync.formUrl || "").trim();
-      const body = document.getElementById("qrBody");
-      const maxBtn = document.getElementById("qrMaxToggleBtn");
-      toggleQrMax(false);
-      if (fUrl) {
-        maxBtn.style.display = "inline-flex";
-        body.innerHTML = `
-          <img id="qrZoomImg" class="qr-img-zoomable" src="https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=${encodeURIComponent(fUrl)}" alt="QR Code" title="點擊放到最大 / 縮小" />
-          <p style="margin:0.5rem 0 0;font-size:1rem;font-weight:800;">${esc(state.topic || "請老師掃碼輸入想法，馬上就會貼到牆上！")}</p>
-          <span style="font-size:0.78rem;color:var(--subtle);">💡 再點一下 QR Code 圖片即可放到全螢幕最大</span>
-        `;
-        document.getElementById("qrZoomImg").onclick = () => toggleQrMax();
-      } else {
-        maxBtn.style.display = "none";
-        body.innerHTML = `
-          <p style="margin:0.5rem 0;color:var(--muted);">尚未設定 Google 表單網址，請先到「⚙️ 設定」貼入表單連結。</p>
-          <button type="button" class="primary" onclick="document.getElementById('qrModal').classList.remove('open');document.getElementById('setupBtn').click();">前往設定</button>
-        `;
-      }
-      openModal("qrModal");
-    };
-
-    // Setup Modal
-    document.getElementById("setupBtn").onclick = () => {
-      document.getElementById("inSheetUrl").value = state.sync.sheetUrl;
-      document.getElementById("inFormUrl").value = state.sync.formUrl;
-      document.getElementById("inAutoPoll").checked = state.sync.autoPoll;
-      document.getElementById("inGasProxyUrl").value = state.sync.gasProxyUrl || DEFAULT_GAS_PROXY;
-      document.getElementById("inGeminiKey").value = state.sync.geminiKey;
-      document.getElementById("proxyStatusMsg").textContent = "";
-      openModal("setupModal");
     };
 
     document.getElementById("testProxyBtn").onclick = async () => {
@@ -1056,24 +1144,18 @@ ${lines}
       if (!url) { msgEl.textContent = "請先填入 GAS 網址"; return; }
       msgEl.textContent = "⏳ 測試連線中...";
       try {
-        const res = await fetch(url);
+        const res = await fetch(url + "?_t=" + Date.now());
         const raw = await res.text();
         if (raw.trim().startsWith("<")) {
-          msgEl.textContent = "⚠️ 尚未開通：請開啟 GAS 編輯器完成授權並確認部署權限為「所有人」";
+          msgEl.textContent = "⚠️ 尚未開通：請確認 GAS 部署權限為「所有人」";
           msgEl.style.color = "#b91c1c";
           return;
         }
         const data = JSON.parse(raw);
-        if (data.ok && data.hasKey) {
-          msgEl.textContent = "✅ GAS 代理連線成功，且後端已設定 GEMINI_API_KEY！";
-          msgEl.style.color = "#15803d";
-        } else if (data.ok) {
-          msgEl.textContent = "🟡 已連上 GAS，但後端「指令碼屬性」尚未新增 GEMINI_API_KEY";
-          msgEl.style.color = "#b45309";
-        } else {
-          msgEl.textContent = "❌ " + (data.error || "未知錯誤");
-          msgEl.style.color = "#b91c1c";
-        }
+        msgEl.textContent = data.ok && data.hasKey
+          ? `✅ 連線成功！目前第 ${data.round} 輪（${(data.notes || []).length} 張便利貼），Gemini Key 已就緒！`
+          : "✅ 已連上 GAS，但尚未設定 GEMINI_API_KEY";
+        msgEl.style.color = data.hasKey ? "#15803d" : "#b45309";
       } catch (e) {
         msgEl.textContent = "❌ 連線失敗：" + e.message;
         msgEl.style.color = "#b91c1c";
@@ -1081,67 +1163,31 @@ ${lines}
     };
 
     document.getElementById("saveSetupBtn").onclick = async () => {
+      state.sync.gasProxyUrl = document.getElementById("inGasProxyUrl").value.trim() || DEFAULT_GAS_PROXY;
+      state.sync.autoPoll = document.getElementById("inAutoPoll").checked;
       state.sync.sheetUrl = document.getElementById("inSheetUrl").value.trim();
       state.sync.formUrl = document.getElementById("inFormUrl").value.trim();
-      state.sync.autoPoll = document.getElementById("inAutoPoll").checked;
-      state.sync.gasProxyUrl = document.getElementById("inGasProxyUrl").value.trim() || DEFAULT_GAS_PROXY;
       state.sync.geminiKey = document.getElementById("inGeminiKey").value.trim();
-      save(); updateSyncUI(); closeModal("setupModal");
-      if (state.sync.sheetUrl) await syncSheet(false);
-      else toast("設定已儲存！");
+      save(); setupPolling(); closeModal("setupModal");
+      await syncWall(false);
     };
 
-    document.getElementById("demoBtn").onclick = () => {
+    document.getElementById("demoBtn").onclick = async () => {
+      closeModal("setupModal");
       const samples = [
         { author: "第1組 美玲", text: "讓學生帶昨晚家裡餐桌照片來分類，超有生活感！" },
         { author: "第2組 阿哲", text: "前 5 分鐘直接用兩張便當照投票，不用講太多大道理。" },
-        { author: "第3組 小琪", text: "發卡片時很容易暴動，要先約定「手放背後倒數完才准翻牌」。" },
-        { author: "第4組 志明", text: "學習單給開頭句：「我推薦選擇＿＿＿，因為＿＿＿」。" }
+        { author: "第3組 小琪", text: "發卡片時很容易暴動，要先約定「手放背後倒數完才准翻牌」。" }
       ];
-      samples.forEach((s, i) => {
-        state.notes.unshift({
-          id: "demo-" + Date.now() + "-" + i,
-          author: s.author, text: s.text, votes: 2 + i, starred: i === 1, colorIdx: (i % 4) + 1, ts: Date.now() + i
-        });
-      });
-      if (!state.topic) {
-        state.topic = "如果只有 40 分鐘，這堂課怎麼設計最順？";
-        topicEl.value = state.topic;
+      for (const s of samples) {
+        try { await gasPost({ action: "add", author: s.author, text: s.text }); } catch {}
       }
-      save(); renderWall(); closeModal("setupModal");
-      toast("已貼上 4 張示範便利貼！");
-    };
-
-    document.getElementById("unignoreBtn").onclick = async () => {
-      state.ignoredIds = [];
-      save(); closeModal("setupModal");
-      await syncSheet(false);
-    };
-
-    // History Modal
-    document.getElementById("historyBtn").onclick = () => {
-      const body = document.getElementById("historyBody");
-      if (!state.history.length) {
-        body.innerHTML = `<p style="color:var(--muted);text-align:center;margin:1.5rem 0;">尚未有封存的回合。按「🆕 開新回合」後，上一輪的便利貼會保存在這裡。</p>`;
-      } else {
-        body.innerHTML = state.history.map((h) => `
-          <div class="history-item">
-            <div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:0.35rem;">
-              <span>第 ${h.round} 輪｜${esc(h.topic)}</span>
-              <span style="font-size:0.78rem;color:var(--subtle);">${h.time}（${h.notes.length} 張）</span>
-            </div>
-            <ul style="margin:0;padding-left:1.1rem;font-size:0.84rem;">
-              ${h.notes.map((n) => `<li><strong>${esc(n.author)}</strong>：${esc(n.text)} (👍${n.votes || 0})</li>`).join("")}
-            </ul>
-          </div>
-        `).join("");
-      }
-      openModal("historyModal");
+      await syncWall(false);
     };
 
     document.getElementById("clearHistoryBtn").onclick = () => {
       if (!state.history.length || !confirm("確定清空所有歷史回合紀錄？")) return;
-      state.history = []; save(); renderWall(); closeModal("historyModal");
+      state.history = []; save(); renderHostWall(); closeModal("historyModal");
     };
 
     document.getElementById("exportHistoryBtn").onclick = () => {
@@ -1162,9 +1208,16 @@ ${lines}
       URL.revokeObjectURL(u);
     };
 
+    function renderCurrentView() {
+      if (IS_MOBILE) renderMobileWall();
+      else renderHostWall();
+    }
+
     // Boot
-    updateSyncUI();
-    renderWall();
+    if (IS_MOBILE) renderMobileShell();
+    else renderHostShell();
+    setupPolling();
+    syncWall(true);
   </script>
 </body>
 </html>
