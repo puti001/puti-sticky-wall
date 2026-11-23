@@ -535,6 +535,27 @@
     </div>
   </div>
 
+  <!-- Host PIN Modal -->
+  <div class="modal-bg" id="pinModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-head">
+        <h2 id="pinModalTitle">🔒 講師管理密碼</h2>
+        <button type="button" data-close="pinModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="pinModalDesc" style="margin:0;font-size:0.86rem;color:var(--muted);"></p>
+        <div class="field">
+          <label>管理密碼（至少 3 個字元，例如 4 位數 PIN）</label>
+          <input id="inHostPin" type="password" placeholder="輸入密碼..." />
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" id="pinLockOutBtn" style="color:#b91c1c;margin-right:auto;display:none;">🔒 登出／鎖定本機</button>
+        <button type="button" id="pinSubmitBtn" class="primary">確認</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <footer class="site-footer">
@@ -546,6 +567,8 @@
     const STORE = "puti_universal_sticky_wall_v2";
     const MOBILE_NICK_KEY = "puti_wall_mobile_nick";
     const MOBILE_VOTED_KEY = "puti_wall_mobile_voted";
+    const CLIENT_ID_KEY = "puti_wall_client_id";
+    const HOST_PIN_KEY = "puti_wall_host_pin";
     const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1yI2LXh3jrqaEsbV__IoUFcJuOOwoG3DbwBqYo82GWXU/edit?usp=drivesdk";
     const DEFAULT_FORM_URL = "https://forms.gle/52gecPdK85hRJQdL8";
     const DEFAULT_GAS_PROXY = "https://script.google.com/macros/s/AKfycbyw_vR_RPa8iDcnmJFxd7nRKFaBX-H2m-plX225TZSYbmOxf5Fg87LWBBcTSJnaoIG0/exec";
@@ -556,6 +579,21 @@
     let pollTimer = null;
     let topicDebounce = null;
     let qrMode = "mobile"; // mobile | form
+    let serverHasPin = false;
+    let hostUnlocked = false;
+
+    function getClientId() {
+      let id = localStorage.getItem(CLIENT_ID_KEY);
+      if (!id) {
+        id = "c-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+        try { localStorage.setItem(CLIENT_ID_KEY, id); } catch {}
+      }
+      return id;
+    }
+
+    function getHostPin() {
+      return localStorage.getItem(HOST_PIN_KEY) || "";
+    }
 
     function defaults() {
       return {
@@ -616,10 +654,11 @@
 
     async function gasPost(payload) {
       const url = (state.sync.gasProxyUrl || DEFAULT_GAS_PROXY).trim();
+      const body = { ...payload, hostPin: getHostPin() };
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
       const raw = await res.text();
       if (raw.trim().startsWith("<")) throw new Error("GAS 尚未開放權限");
@@ -628,7 +667,25 @@
       return data;
     }
 
-    function applyServerState(data, isUserEditTopic = false) {
+    async function verifyLocalHostPin() {
+      if (!serverHasPin) { hostUnlocked = true; return; }
+      const pin = getHostPin();
+      if (!pin) { hostUnlocked = false; return; }
+      try {
+        const res = await gasPost({ action: "check_host_pin", hostPin: pin });
+        hostUnlocked = Boolean(res.valid);
+      } catch {
+        hostUnlocked = false;
+      }
+    }
+
+    async function applyServerState(data, isUserEditTopic = false) {
+      if (typeof data.hasHostPin === "boolean") {
+        const changed = data.hasHostPin !== serverHasPin;
+        serverHasPin = data.hasHostPin;
+        if (!serverHasPin) hostUnlocked = true;
+        else if (changed) await verifyLocalHostPin();
+      }
       if (typeof data.round === "number") state.round = data.round;
       if (typeof data.topic === "string" && !isUserEditTopic) {
         state.topic = data.topic;
@@ -714,10 +771,6 @@
           </div>
 
           <div class="wall" id="mWall"></div>
-
-          <div style="text-align:center;margin-top:0.5rem;">
-            <a href="${location.pathname}" style="font-size:0.78rem;color:var(--subtle);">切換回講師大螢幕模式</a>
-          </div>
         </div>
       `;
 
@@ -792,22 +845,17 @@
       wall.querySelectorAll("[data-mlike]").forEach((btn) => {
         btn.onclick = async () => {
           const id = btn.dataset.mlike;
-          const votedSet = getVotedSet();
-          const already = votedSet.has(id);
-          const delta = already ? -1 : 1;
-
-          // Optimistic UI update
-          if (already) votedSet.delete(id); else votedSet.add(id);
-          saveVotedSet(votedSet);
-          const target = state.notes.find((x) => x.id === id);
-          if (target) target.votes = Math.max(0, (target.votes || 0) + delta);
-          renderMobileWall();
-
+          btn.disabled = true;
           try {
-            const data = await gasPost({ action: "vote", id, delta });
-            applyServerState(data);
+            const data = await gasPost({ action: "vote", id, clientId: getClientId() });
+            const votedSet = getVotedSet();
+            if (data.liked) votedSet.add(id); else votedSet.delete(id);
+            saveVotedSet(votedSet);
+            await applyServerState(data);
           } catch (err) {
             toast("按讚同步失敗：" + err.message);
+          } finally {
+            btn.disabled = false;
           }
         };
       });
@@ -824,6 +872,7 @@
             <input id="topicInput" class="topic-input" type="text"
               placeholder="輸入本輪討論題目（手機掃碼端會同步看到這題）" value="${esc(state.topic)}" />
             <div class="actions">
+              <button type="button" id="hostLockBtn">🛡️ 設定講師密碼</button>
               <button type="button" id="qrBtn">📱 掃碼 QR</button>
               <button type="button" id="syncBtn"><span class="dot live" id="syncDot"></span> <span id="syncText">即時連線</span></button>
               <button type="button" id="newRoundBtn" class="warn" title="封存目前牆面並開下一輪">🆕 開新回合</button>
@@ -839,7 +888,7 @@
         <div class="subbar">
           <div class="quick-add">
             <input id="quickAuthor" type="text" placeholder="組別／暱稱" style="width:125px;" />
-            <input id="quickText" type="text" placeholder="講師代打或現場補充一張便利貼（Enter 送出）..." style="flex:1;min-width:200px;" />
+            <input id="quickText" type="text" placeholder="現場貼上一張便利貼（Enter 送出）..." style="flex:1;min-width:200px;" />
             <button type="button" id="quickAddBtn" class="dark">➕ 貼上</button>
           </div>
           <div class="wall-meta">
@@ -858,7 +907,32 @@
       renderHostWall();
     }
 
+    function updateHostAuthUI() {
+      const canManage = !serverHasPin || hostUnlocked;
+      const lockBtn = document.getElementById("hostLockBtn");
+      if (lockBtn) {
+        if (!serverHasPin) {
+          lockBtn.textContent = "🛡️ 設定講師密碼";
+          lockBtn.className = "warn";
+        } else if (hostUnlocked) {
+          lockBtn.textContent = "🔓 講師已解鎖";
+          lockBtn.className = "";
+        } else {
+          lockBtn.textContent = "🔒 講師解鎖";
+          lockBtn.className = "warn";
+        }
+      }
+      const topicEl = document.getElementById("topicInput");
+      if (topicEl) topicEl.disabled = !canManage;
+      ["newRoundBtn", "aiSummaryBtn", "qrBtn", "setupBtn"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = canManage ? "inline-flex" : "none";
+      });
+    }
+
     function renderHostWall() {
+      updateHostAuthUI();
+      const canManage = !serverHasPin || hostUnlocked;
       const roundEl = document.getElementById("roundBadge");
       const countEl = document.getElementById("noteCount");
       const histEl = document.getElementById("histCount");
@@ -876,53 +950,87 @@
         wall.innerHTML = `
           <div class="empty-wall">
             <h2>第 ${state.round} 輪準備就緒！</h2>
-            <p>上方輸入討論題目 → 點「📱 掃碼 QR」讓大家手機掃進去發文＋互按讚！</p>
+            <p>${canManage ? "上方輸入討論題目 → 點「📱 掃碼 QR」讓大家手機掃進去發文＋互按讚！" : "目前為唯讀／參與模式，等待講師開啟討論或點右上角「🔒 講師解鎖」。"}</p>
           </div>
         `;
         return;
       }
 
-      wall.innerHTML = list.map((n) => `
+      const voted = getVotedSet();
+      wall.innerHTML = list.map((n) => {
+        const isLiked = voted.has(n.id);
+        return `
         <div class="sticky c${n.colorIdx || 1} ${n.starred ? "starred" : ""}">
           <div class="sticky-text">${esc(n.text)}</div>
           <div class="sticky-foot">
             <span class="sticky-author" title="${esc(n.author)}">${esc(n.author)}</span>
             <div class="sticky-btns">
-              <button type="button" class="mini" data-vote="${n.id}" title="讚 +1">👍 ${n.votes || 0}</button>
-              <button type="button" class="mini ${n.starred ? "on" : ""}" data-star="${n.id}" title="標記重點">★</button>
-              <button type="button" class="mini" data-del="${n.id}" title="移除">✕</button>
+              <button type="button" class="mini ${isLiked ? "on" : ""}" data-vote="${n.id}" title="每台裝置限讚 1 票（再點收回）">👍 ${n.votes || 0}</button>
+              ${canManage ? `<button type="button" class="mini ${n.starred ? "on" : ""}" data-star="${n.id}" title="標記重點">★</button>` : ""}
+              ${canManage ? `<button type="button" class="mini" data-del="${n.id}" title="移除">✕</button>` : ""}
             </div>
           </div>
         </div>
-      `).join("");
+      `;
+      }).join("");
 
       wall.querySelectorAll("[data-vote]").forEach((b) => {
         b.onclick = async () => {
           const id = b.dataset.vote;
-          const n = state.notes.find((x) => x.id === id);
-          if (n) { n.votes = (n.votes || 0) + 1; renderHostWall(); }
-          try { applyServerState(await gasPost({ action: "vote", id, delta: 1 })); } catch {}
+          b.disabled = true;
+          try {
+            const data = await gasPost({ action: "vote", id, clientId: getClientId() });
+            const votedSet = getVotedSet();
+            if (data.liked) votedSet.add(id); else votedSet.delete(id);
+            saveVotedSet(votedSet);
+            await applyServerState(data);
+          } catch (err) {
+            toast("按讚失敗：" + err.message);
+          } finally {
+            b.disabled = false;
+          }
         };
       });
       wall.querySelectorAll("[data-star]").forEach((b) => {
         b.onclick = async () => {
           const id = b.dataset.star;
-          const n = state.notes.find((x) => x.id === id);
-          if (n) { n.starred = !n.starred; renderHostWall(); }
-          try { applyServerState(await gasPost({ action: "star", id })); } catch {}
+          try { await applyServerState(await gasPost({ action: "star", id })); }
+          catch (err) { toast(err.message); }
         };
       });
       wall.querySelectorAll("[data-del]").forEach((b) => {
         b.onclick = async () => {
           const id = b.dataset.del;
-          state.notes = state.notes.filter((x) => x.id !== id);
-          renderHostWall();
-          try { applyServerState(await gasPost({ action: "delete", id })); } catch {}
+          try { await applyServerState(await gasPost({ action: "delete", id })); }
+          catch (err) { toast(err.message); }
         };
       });
     }
 
     function bindHostEvents() {
+      document.getElementById("hostLockBtn").onclick = () => {
+        const title = document.getElementById("pinModalTitle");
+        const desc = document.getElementById("pinModalDesc");
+        const lockOut = document.getElementById("pinLockOutBtn");
+        const inPin = document.getElementById("inHostPin");
+        inPin.value = "";
+        if (!serverHasPin) {
+          title.textContent = "🛡️ 設定講師管理密碼";
+          desc.textContent = "設定一組管理密碼後，只有輸入密碼的電腦可以刪除便利貼、改題目、開新回合與呼叫 AI；手機端與未解鎖網頁只能發文與每人限讚一票。";
+          lockOut.style.display = "none";
+        } else if (hostUnlocked) {
+          title.textContent = "🔓 變更密碼或鎖定本機";
+          desc.textContent = "目前此瀏覽器已記住講師權限。你可以輸入新密碼更換，或點左下角「登出／鎖定本機」。";
+          lockOut.style.display = "inline-flex";
+        } else {
+          title.textContent = "🔒 輸入講師密碼解鎖";
+          desc.textContent = "請輸入講師設定的管理密碼以解鎖刪除、標星、開新回合與設定功能。";
+          lockOut.style.display = "none";
+        }
+        openModal("pinModal");
+        setTimeout(() => inPin.focus(), 50);
+      };
+
       const topicEl = document.getElementById("topicInput");
       topicEl.oninput = (e) => {
         state.topic = e.target.value;
@@ -1183,6 +1291,48 @@ ${lines}
         try { await gasPost({ action: "add", author: s.author, text: s.text }); } catch {}
       }
       await syncWall(false);
+    };
+
+    document.getElementById("pinLockOutBtn").onclick = () => {
+      localStorage.removeItem(HOST_PIN_KEY);
+      hostUnlocked = false;
+      closeModal("pinModal");
+      renderHostWall();
+      toast("🔒 已鎖定本機管理權限");
+    };
+
+    document.getElementById("pinSubmitBtn").onclick = async () => {
+      const pin = document.getElementById("inHostPin").value.trim();
+      if (!pin || pin.length < 3) { toast("密碼至少需要 3 個字元"); return; }
+      try {
+        if (!serverHasPin || hostUnlocked) {
+          const res = await gasPost({ action: "set_host_pin", newPin: pin, hostPin: getHostPin() });
+          if (res.ok) {
+            localStorage.setItem(HOST_PIN_KEY, pin);
+            serverHasPin = true;
+            hostUnlocked = true;
+            closeModal("pinModal");
+            renderHostWall();
+            toast("🛡️ 講師管理密碼已設定並解鎖本機！");
+          }
+        } else {
+          const res = await gasPost({ action: "check_host_pin", hostPin: pin });
+          if (res.valid) {
+            localStorage.setItem(HOST_PIN_KEY, pin);
+            hostUnlocked = true;
+            closeModal("pinModal");
+            renderHostWall();
+            toast("🔓 已解鎖講師管理權限！");
+          } else {
+            toast("❌ 密碼不正確");
+          }
+        }
+      } catch (err) {
+        toast("失敗：" + err.message);
+      }
+    };
+    document.getElementById("inHostPin").onkeydown = (e) => {
+      if (e.key === "Enter") document.getElementById("pinSubmitBtn").click();
     };
 
     document.getElementById("clearHistoryBtn").onclick = () => {
