@@ -561,6 +561,7 @@
   <footer class="site-footer">
     屏東縣後庄國小黃朝榮老師作品，免費分享，歡迎擴散推廣，嚴禁商用與任何侵權、不尊重著作權的行為
     ｜ 更多 Puti-AI 教學工具：<a href="https://padlet.com/clongwh/puti_ai_tools" target="_blank" rel="noopener noreferrer">點此前往</a>
+    ｜ <a href="?view=host" style="color:var(--subtle);font-weight:500;text-decoration:none;">🔑 講師入口</a>
   </footer>
 
   <script>
@@ -574,7 +575,9 @@
     const DEFAULT_GAS_PROXY = "https://script.google.com/macros/s/AKfycbyw_vR_RPa8iDcnmJFxd7nRKFaBX-H2m-plX225TZSYbmOxf5Fg87LWBBcTSJnaoIG0/exec";
     const LIVE_HOST_BASE = "https://puti001.github.io/puti-sticky-wall/";
 
-    const IS_MOBILE = new URLSearchParams(location.search).get("view") === "mobile";
+    const VIEW_PARAM = new URLSearchParams(location.search).get("view") || "";
+    const IS_MOBILE = VIEW_PARAM === "mobile";
+    let isHostViewActive = false;
     let state = load();
     let pollTimer = null;
     let topicDebounce = null;
@@ -845,17 +848,27 @@
       wall.querySelectorAll("[data-mlike]").forEach((btn) => {
         btn.onclick = async () => {
           const id = btn.dataset.mlike;
-          btn.disabled = true;
+          const votedSet = getVotedSet();
+          const wasLiked = votedSet.has(id);
+          if (wasLiked) votedSet.delete(id); else votedSet.add(id);
+          saveVotedSet(votedSet);
+          const target = state.notes.find((x) => x.id === id);
+          if (target) target.votes = Math.max(0, (Number(target.votes) || 0) + (wasLiked ? -1 : 1));
+          renderMobileWall();
+
           try {
             const data = await gasPost({ action: "vote", id, clientId: getClientId() });
-            const votedSet = getVotedSet();
-            if (data.liked) votedSet.add(id); else votedSet.delete(id);
-            saveVotedSet(votedSet);
+            const confirmedSet = getVotedSet();
+            if (data.liked) confirmedSet.add(id); else confirmedSet.delete(id);
+            saveVotedSet(confirmedSet);
             await applyServerState(data);
           } catch (err) {
+            // Rollback on failure
+            const rb = getVotedSet();
+            if (wasLiked) rb.add(id); else rb.delete(id);
+            saveVotedSet(rb);
+            renderMobileWall();
             toast("按讚同步失敗：" + err.message);
-          } finally {
-            btn.disabled = false;
           }
         };
       });
@@ -1296,8 +1309,9 @@ ${lines}
     document.getElementById("pinLockOutBtn").onclick = () => {
       localStorage.removeItem(HOST_PIN_KEY);
       hostUnlocked = false;
+      isHostViewActive = false;
       closeModal("pinModal");
-      renderHostWall();
+      renderHostLoginGate();
       toast("🔒 已鎖定本機管理權限");
     };
 
@@ -1358,16 +1372,91 @@ ${lines}
       URL.revokeObjectURL(u);
     };
 
-    function renderCurrentView() {
-      if (IS_MOBILE) renderMobileWall();
-      else renderHostWall();
+    function renderHostLoginGate() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="mobile-shell" style="justify-content:center;min-height:70vh;">
+          <div class="m-form" style="padding:1.4rem;">
+            <h2 style="margin:0 0 0.25rem;font-size:1.2rem;">🔒 講師大螢幕驗證</h2>
+            <p style="margin:0 0 0.7rem;font-size:0.86rem;color:var(--muted);">
+              本頁為講師主控模式。請輸入你設定的講師管理密碼以進入大螢幕介面；若為參與者請直接點下方返回手機參與牆。
+            </p>
+            <input id="gatePinInput" type="password" placeholder="輸入講師管理密碼..." />
+            <button type="button" id="gatePinBtn" class="primary" style="justify-content:center;padding:0.6rem;">🔓 進入講師大螢幕</button>
+            <a href="${location.pathname}?view=mobile" style="text-align:center;font-size:0.82rem;color:var(--subtle);margin-top:0.25rem;">← 返回學員手機參與牆</a>
+          </div>
+        </div>
+      `;
+      const inEl = document.getElementById("gatePinInput");
+      const btn = document.getElementById("gatePinBtn");
+      const doLogin = async () => {
+        const pin = inEl.value.trim();
+        if (!pin) return;
+        btn.disabled = true;
+        try {
+          const res = await gasPost({ action: "check_host_pin", hostPin: pin });
+          if (res.valid) {
+            localStorage.setItem(HOST_PIN_KEY, pin);
+            hostUnlocked = true;
+            isHostViewActive = true;
+            renderHostShell();
+            setupPolling();
+            toast("🔓 已進入講師大螢幕模式！");
+          } else {
+            toast("❌ 密碼不正確");
+          }
+        } catch (err) {
+          toast("驗證失敗：" + err.message);
+        } finally {
+          btn.disabled = false;
+        }
+      };
+      btn.onclick = doLogin;
+      inEl.onkeydown = (e) => { if (e.key === "Enter") doLogin(); };
+      setTimeout(() => inEl.focus(), 50);
     }
 
-    // Boot
-    if (IS_MOBILE) renderMobileShell();
-    else renderHostShell();
-    setupPolling();
-    syncWall(true);
+    function renderCurrentView() {
+      if (isHostViewActive) renderHostWall();
+      else renderMobileWall();
+    }
+
+    // Boot: verify server status & PIN before deciding Host vs Participant view
+    (async function boot() {
+      document.getElementById("appRoot").innerHTML = `<div style="margin:auto;padding:3rem;color:var(--muted);font-weight:700;">⏳ 連線便利貼牆中...</div>`;
+      try {
+        const data = await gasGetWall();
+        serverHasPin = Boolean(data.hasHostPin);
+        if (typeof data.round === "number") state.round = data.round;
+        if (typeof data.topic === "string") state.topic = data.topic;
+        if (Array.isArray(data.notes)) state.notes = data.notes;
+        await verifyLocalHostPin();
+      } catch {
+        // Fallback to offline cached state
+      }
+
+      if (IS_MOBILE) {
+        isHostViewActive = false;
+        renderMobileShell();
+      } else if (VIEW_PARAM === "host") {
+        if (!serverHasPin || hostUnlocked) {
+          isHostViewActive = true;
+          renderHostShell();
+        } else {
+          isHostViewActive = false;
+          renderHostLoginGate();
+          return;
+        }
+      } else if (hostUnlocked && getHostPin()) {
+        // Bare URL opened on lecturer's own authenticated browser
+        isHostViewActive = true;
+        renderHostShell();
+      } else {
+        // Bare URL opened on any phone or unauthenticated browser -> strictly Participant Wall!
+        isHostViewActive = false;
+        renderMobileShell();
+      }
+      setupPolling();
+    })();
   </script>
 </body>
 </html>
